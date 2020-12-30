@@ -8,6 +8,7 @@ mod 'mf-vehicleshops'
 version '1.0.0'
 
 client_scripts {
+  '@menuv/menuv.lua',
   'config.lua',
 
   'src/client/functions.lua',
@@ -15,7 +16,7 @@ client_scripts {
 }
 
 server_scripts {
-  '@mysql-async/lib/MySQL.lua',
+ -- '@mysql-async/lib/MySQL.lua',
   
   'config.lua',
   'credentials.lua',
@@ -26,7 +27,7 @@ server_scripts {
 }
 
 dependencies {
-  'mysql-async',
+  'menuv',
  -- 'es_extended',
   'markers',
 }
