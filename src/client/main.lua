@@ -229,8 +229,25 @@ VehicleShops.PurchaseStock = function(vehicle)
       label = "No shops to display."
     })
   end
+  --#######################################################################
+  local assert = assert
+  local MenuV = assert(MenuV)
+  local AccountMain = MenuV:CreateMenu("Account", '', 'topleft', 255, 0, 0, 'size-150')
+  MenuV:OpenMenu(AccountMain, function()
+  end)
+  for k,v in ipairs(elements) do
+  local button = AccountMain:AddButton({ icon = "🧑‍🔧 	", label = v.label, value = v ,select = function(btn)
+    local current = btn.Value.value
+   if current.value then
+      VehicleShops.PurchaseStockVehicle(vehicle,element.value)
+   end
+  
+  end})
 
-   RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'player_dressing', {
+  end
+
+
+  --[[  RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'player_dressing', {
     title    = "Administracion",
     align    = 'top-left',
     elements = elements
@@ -245,7 +262,7 @@ VehicleShops.PurchaseStock = function(vehicle)
     function(d,m)
       m.close()
     end
-  )
+  ) ]]
 end
 
 VehicleShops.EnterWarehouse = function(...)
