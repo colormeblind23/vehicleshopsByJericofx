@@ -25,6 +25,13 @@ https://www.mediafire.com/file/hchd9r3n14mpm9c/%255Bautos%255D.rar/file
 
 * vehicleshops
 
+# IMPORTANT INFORMATION
+
+I found a fix to the Nil values in the server console, it happend because when we are in the selection menu, the resource want an id, at that momento we dont have that, so the fix i found is going to the rs-spawn (qb-spawn) in this part https://prnt.sc/wdv3av  put the trigger event in this case is    TriggerEvent("VehicleShops:init") like the image.
+
+
+
+
 Information
 
 Vehicle Shops allows authorised players to create custom, player-owned vehicle shops anywhere in the world while in-game. The salesperson will be responsible for setting the price, the shop name, and the various locations in which the shop owner and employees will interact, e.g:
