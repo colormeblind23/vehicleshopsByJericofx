@@ -26,6 +26,8 @@ VehicleShops.Init = function()
   end)
 end
 
+
+
 VehicleShops.WarehouseRefresh = function(data)
   VehicleShops.WarehouseVehicles = data
   if InsideWarehouse then
@@ -1549,4 +1551,7 @@ AddEventHandler("VehicleShops:CreateNew",VehicleShops.CreateNew)
 RegisterNetEvent("VehicleShops:WarehouseRefresh")
 AddEventHandler("VehicleShops:WarehouseRefresh",VehicleShops.WarehouseRefresh)
 
-Citizen.CreateThread(VehicleShops.Init)
+RegisterNetEvent("VehicleShops:init")
+AddEventHandler("VehicleShops:init",VehicleShops.Init)
+
+--[[ Citizen.CreateThread() ]]
