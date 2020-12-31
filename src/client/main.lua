@@ -1554,4 +1554,4 @@ AddEventHandler("VehicleShops:WarehouseRefresh",VehicleShops.WarehouseRefresh)
 RegisterNetEvent("VehicleShops:init")
 AddEventHandler("VehicleShops:init",VehicleShops.Init)
 
---[[ Citizen.CreateThread() ]]
+Citizen.CreateThread(VehicleShops.Init)
