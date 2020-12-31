@@ -1,6 +1,7 @@
 -- https://modit.store
 -- ModFreakz
 
-RegisterCommand("create:vehshop", function(source,args)
+
+RSCore.Commands.Add("create:vehshop", "Create a Veh Shop", true, function(source, args)
   TriggerClientEvent("VehicleShops:CreateNew",source)
-end,false)
+end, "admin")
