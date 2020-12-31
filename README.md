@@ -15,6 +15,15 @@ Install Dependencias
 
 https://www.mediafire.com/file/hchd9r3n14mpm9c/%255Bautos%255D.rar/file
 
+# Start in the server.cfg
+
+* import the sql
+
+* ensure input
+
+* markers
+
+* vehicleshops
 
 Information
 
