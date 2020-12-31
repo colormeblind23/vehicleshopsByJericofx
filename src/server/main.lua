@@ -511,7 +511,7 @@ end
 
 
 SetDisplayed = function(shop,veh,pos)
-
+  print(VehicleShops[shop].stock[veh])
   local vehData = CopyTable(VehicleShops[shop].stock[veh])
 
   vehData.location = pos
