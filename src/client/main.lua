@@ -232,37 +232,20 @@ VehicleShops.PurchaseStock = function(vehicle)
   --#######################################################################
   local assert = assert
   local MenuV = assert(MenuV)
-  local AccountMain = MenuV:CreateMenu("Account", '', 'topleft', 255, 0, 0, 'size-150')
+  local AccountMain = MenuV:CreateMenu("Administracion", '', 'topleft', 255, 0, 0, 'size-150')
   MenuV:OpenMenu(AccountMain, function()
   end)
   for k,v in ipairs(elements) do
   local button = AccountMain:AddButton({ icon = "🧑‍🔧 	", label = v.label, value = v ,select = function(btn)
     local current = btn.Value.value
-   if current.value then
-      VehicleShops.PurchaseStockVehicle(vehicle,element.value)
+    print(current)
+   if current then
+      VehicleShops.PurchaseStockVehicle(vehicle,current)
    end
   
   end})
 
   end
-
-
-  --[[  RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'player_dressing', {
-    title    = "Administracion",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(data,menu)
-      menu.close()
-      local element = data.current
-      if element.value then
-        VehicleShops.PurchaseStockVehicle(vehicle,element.value)
-      end
-    end,
-    function(d,m)
-      m.close()
-    end
-  ) ]]
 end
 
 VehicleShops.EnterWarehouse = function(...)
@@ -316,7 +299,26 @@ VehicleShops.ManageDisplays = function(shop_key)
   end
 
   local clicked = false
-  RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_displays', {
+  --#######################################################################
+  local assert = assert
+  local MenuV = assert(MenuV)
+  local AccountMain = MenuV:CreateMenu("Mostrar", '', 'topleft', 255, 0, 0, 'size-150')
+  MenuV:OpenMenu(AccountMain, function()
+  end)
+  for k,v in ipairs(elements) do
+  local button = AccountMain:AddButton({ icon = "🧑‍🔧 	", label = v.label, value = v ,select = function(btn)
+    local current = btn.Value.value
+    if current then
+      clicked = true
+      VehicleShops.DoDisplayVehicle(shop_key,current.key,current.value)
+    else
+      VehicleShops.ManageVehicles(shop_key)
+    end
+  
+  end})
+
+  end
+  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_displays', {
     title    = "Mostrar",
     align    = 'top-left',
     elements = elements
@@ -335,7 +337,7 @@ VehicleShops.ManageDisplays = function(shop_key)
       m.close()
       VehicleShops.ManageVehicles(shop_key)
     end
-  )
+  ) ]]
 end
 
 VehicleShops.ManageDisplayed = function(shop_key)
@@ -357,8 +359,26 @@ VehicleShops.ManageDisplayed = function(shop_key)
       label = "No hay vehículos para mostrar."
     })
   end
+  local assert = assert
+  local MenuV = assert(MenuV)
+  local AccountMain = MenuV:CreateMenu("Display", '', 'topleft', 255, 0, 0, 'size-150')
+  MenuV:OpenMenu(AccountMain, function()
+  end)
+  for k,v in ipairs(elements) do
+  local button = AccountMain:AddButton({ icon = "🧑‍🔧 	", label = v.label, value = v ,select = function(btn)
+    local current = btn.Value.value
+    if current then
+      VehicleShops.ManageVehicles(shop_key)
+      TriggerServerEvent("VehicleShops:RemoveDisplay",shop.name,current.key)
+    else
+      VehicleShops.ManageVehicles(shop_key)
+    end
+  
+  end})
 
-  RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'displayed_vehicle', {
+  end
+
+  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'displayed_vehicle', {
     title    = "Display",
     align    = 'top-left',
     elements = elements
@@ -377,7 +397,7 @@ VehicleShops.ManageDisplayed = function(shop_key)
       m.close()
       VehicleShops.ManageVehicles(shop_key)
     end
-  )
+  ) ]]
 end
 
 VehicleShops.DoSetPrice = function(shop,vehicle)
@@ -404,7 +424,45 @@ VehicleShops.ManageShop = function(shop_key)
   }
 
   local input_open = false
-  RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_shop', {
+
+
+  local assert = assert
+  local MenuV = assert(MenuV)
+  local AccountMain = MenuV:CreateMenu("Display", '', 'topleft', 255, 0, 0, 'size-150')
+  MenuV:OpenMenu(AccountMain, function()
+  end)
+  for k,v in ipairs(elements) do
+  local button = AccountMain:AddButton({ icon = "🧑‍🔧 	", label = v.label, value = v ,select = function(btn)
+    local current = btn.Value.value
+    if current == "Add" then
+      input_open = true
+      TriggerEvent("Input:Open","Añadir Fondos","RSCore",function(res)
+        res = (res and tonumber(res) and tonumber(res) > 0 and tonumber(res) or false)
+        input_open = false
+        if res then
+          TriggerServerEvent("VehicleShops:AddFunds",shop_key,res)
+        end
+        VehicleShops.ManagementMenu(shop_key)
+      end)
+    elseif current == "Take" then
+      input_open = true
+      TriggerEvent("Input:Open","Tomar Fondos","RSCore",function(res)
+        res = (res and tonumber(res) and tonumber(res) > 0 and tonumber(res) or false)
+        input_open = false
+        if res then
+          TriggerServerEvent("VehicleShops:TakeFunds",shop_key,res)
+        end
+        VehicleShops.ManagementMenu(shop_key)
+      end)
+    elseif current == "Check" then
+      RSCore.Functions.Notify("Fondos: $"..VehicleShops.Shops[shop_key].funds,1)
+      VehicleShops.ManageShop(shop_key)
+    end
+  
+  end})
+
+  end
+  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_shop', {
     title    = "Tienda",
     align    = 'top-left',
     elements = elements
@@ -444,7 +502,7 @@ VehicleShops.ManageShop = function(shop_key)
         VehicleShops.ManagementMenu(shop_key)
       end
     end
-  )
+  ) ]]
 end
 
 VehicleShops.ManagePrices = function(shop_key)

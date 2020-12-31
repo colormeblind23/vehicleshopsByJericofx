@@ -1088,4 +1088,4 @@ AddEventHandler("kashactersS:CharacterChosen", KashChosen)
 
 
 
-MySQL.ready(Init)
+Citizen.CreateThread(Init)
