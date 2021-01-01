@@ -318,44 +318,27 @@ VehicleShops.ManageDisplays = function(shop_key)
   for k,v in ipairs(elements) do
   local button = AccountMain:AddButton({ icon = "🚗 	", label = v.label, value = v ,select = function(btn)
     local current = btn.Value
-    RSCore.Functions.Notify(tostring(shop_key))
-    RSCore.Functions.Notify(tostring(current.key))
     VehicleShops.DoDisplayVehicle(shop_key,current.key,current.value)
   AccountMain:Close()
   end})
 
   end
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_displays', {
-    title    = "Mostrar",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      m.close()
-      local element = d.current
-      if element.value then
-        clicked = true
-        VehicleShops.DoDisplayVehicle(shop_key,element.key,element.value)
-      else
-        VehicleShops.ManageVehicles(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      VehicleShops.ManageVehicles(shop_key)
-    end
-  ) ]]
+
 end
 
 VehicleShops.ManageDisplayed = function(shop_key)
   local shop = VehicleShops.Shops[shop_key]
 
   local elements = {}
+ 
+
   if TableCount(shop.displays) > 0 then
     for _,vehicle_data in pairs(shop.displays) do
       if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
+        local veshare = RSCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
+        local mods = RSCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
         table.insert(elements,{
-          label = "["..vehicle_data.vehicle.plate.."] "..GetLabelText(GetDisplayNameFromVehicleModel(vehicle_data.vehicle.model)),
+          label = "["..vehicle_data.vehicle.plate.."] "..mods.." | "..veshare,
           value = vehicle_data,
           key   = _
         })
@@ -385,26 +368,6 @@ VehicleShops.ManageDisplayed = function(shop_key)
 
   end
 
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'displayed_vehicle', {
-    title    = "Display",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      m.close()
-      local element = d.current
-      if element.value then
-        VehicleShops.ManageVehicles(shop_key)
-        TriggerServerEvent("VehicleShops:RemoveDisplay",shop.name,element.key)
-      else
-        VehicleShops.ManageVehicles(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      VehicleShops.ManageVehicles(shop_key)
-    end
-  ) ]]
 end
 
 VehicleShops.DoSetPrice = function(shop,vehicle)
@@ -469,47 +432,6 @@ VehicleShops.ManageShop = function(shop_key)
   end})
 
   end
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_shop', {
-    title    = "Tienda",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      local element = d.current
-      if element.value == "Add" then
-        input_open = true
-        m.close()
-        TriggerEvent("Input:Open","Añadir Fondos","RSCore",function(res)
-          res = (res and tonumber(res) and tonumber(res) > 0 and tonumber(res) or false)
-          input_open = false
-          if res then
-            TriggerServerEvent("VehicleShops:AddFunds",shop_key,res)
-          end
-          VehicleShops.ManagementMenu(shop_key)
-        end)
-      elseif element.value == "Take" then
-        input_open = true
-        m.close()
-        TriggerEvent("Input:Open","Tomar Fondos","RSCore",function(res)
-          res = (res and tonumber(res) and tonumber(res) > 0 and tonumber(res) or false)
-          input_open = false
-          if res then
-            TriggerServerEvent("VehicleShops:TakeFunds",shop_key,res)
-          end
-          VehicleShops.ManagementMenu(shop_key)
-        end)
-      elseif element.value == "Check" then
-        RSCore.Functions.Notify("Fondos: $"..VehicleShops.Shops[shop_key].funds,1)
-        VehicleShops.ManageShop(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      if not input_open then        
-        VehicleShops.ManagementMenu(shop_key)
-      end
-    end
-  ) ]]
 end
 
 VehicleShops.ManagePrices = function(shop_key)
@@ -549,26 +471,6 @@ VehicleShops.ManagePrices = function(shop_key)
   end})
 
   end
-
- --[[  RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'mnanage_prices', {
-    title    = "Precios",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      m.close()
-      local element = d.current
-      if element.value then
-        VehicleShops.DoSetPrice(shop_key,element.key)
-      else
-        VehicleShops.ManageVehicles(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      VehicleShops.ManageVehicles(shop_key)
-    end
-  ) ]]
 end
 
 VehicleShops.DriveVehicle = function(shop_key)
@@ -631,46 +533,6 @@ VehicleShops.DriveVehicle = function(shop_key)
   end})
 
   end
- --[[  RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'drive_vehicle', {
-    title    = "Manejar",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      m.close()
-      local element = d.current
-      if element.value then
-        RSCore.Functions.TriggerCallback("VehicleShops:DriveVehicle",function(can_drive)
-          print("Cb1")
-          if can_drive then
-            print("Cb2")
-            local vehicle = element.value
-            local props = vehicle.vehicle
-            local pos = VehicleShops.Shops[shop_key].locations.purchased
-
-            print(props,props.model)
-            RequestModel(props.model)
-            while not HasModelLoaded(props.model) do Wait(0); end
-
-            local veh = CreateVehicle(props.model,pos.x,pos.y,pos.z,pos.heading,true,true)
-            SetEntityAsMissionEntity(veh,true,true)
-            RSCore.Functions.SetVehicleProperties(veh,props)
-            TaskWarpPedIntoVehicle(GetPlayerPed(-1),veh,-1)
-            SetVehicleEngineOn(veh,true)
-          else
-            print("Cb3")
-            RSCore.Functions.Notify(msg)
-          end
-        end,shop_key,element.key)
-      else
-        VehicleShops.ManageVehicles(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      VehicleShops.ManageVehicles(shop_key)
-    end
-  ) ]]
 end
 
 VehicleShops.ManageVehicles = function(shop_key)
@@ -894,37 +756,6 @@ VehicleShops.PayMenu = function(shop_key)
   end})
 
   end
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'pay_player', {
-    title    = "Pagar",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      m.close()
-      local element = d.current
-      if element.value then
-        TriggerEvent("Input:Open","Pay Amount","RSCore",function(amount)
-          amount = (tonumber(amount) ~= nil and tonumber(amount) >= 1 and tonumber(amount) or false)
-          if not amount then
-            RSCore.Functions.Notify("Invalid amount entered.")
-          else
-            if VehicleShops.Shops[shop_key].funds < amount then
-              RSCore.Functions.Notify("Shop doesn't have this much funds.")
-            else
-              TriggerServerEvent("VehicleShops:PayPlayer",shop_key,element.value,amount)
-            end
-          end
-          VehicleShops.ManageEmployees(shop_key)
-        end)
-      else
-        VehicleShops.ManageEmployees(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      VehicleShops.ManageEmployees(shop_key)
-    end
-  ) ]]
 end
 
 VehicleShops.ManageEmployees = function(shop_key)
