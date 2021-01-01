@@ -378,8 +378,11 @@ VehicleShops.DoSetPrice = function(shop,vehicle)
       Wait(200)
       VehicleShops.DoSetPrice(shop,vehicle)
     else      
+      
       local vehData = VehicleShops.Shops[shop].displays[vehicle]
-      RSCore.Functions.Notify("Tú fijas el precio del "..(GetLabelText(GetDisplayNameFromVehicleModel(vehData.vehicle.model))).." at $"..price)
+      local veshare = RSCore.Shared.VehicleModels[vehData.vehicle.model].name
+      local mods = RSCore.Shared.VehicleModels[vehData.vehicle.model].brand
+      RSCore.Functions.Notify("Tú fijas el precio del "..mods.." | "..veshare.." at $"..price)
       TriggerServerEvent("VehicleShops:SetPrice",vehicle,shop,price)
       VehicleShops.ManagementMenu(shop)
     end
