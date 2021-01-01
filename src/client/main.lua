@@ -733,7 +733,10 @@ end
 VehicleShops.HireMenu = function(shop_key)
   local elements = {}
   local ply = PlayerId()
-  for k,v in pairs(RSCore.Functions.GetPlayersInArea(GetEntityCoords(GetPlayerPed(-1)),10.0)) do
+  local coordinates = RSCore.Functions.GetClosestPlayer()
+  if coordinates == "table" then
+
+  for k,v in pairs(coordinates) do
     if v ~= ply then
       table.insert(elements,{
         label = GetPlayerName(v),
@@ -741,7 +744,7 @@ VehicleShops.HireMenu = function(shop_key)
       })
     end
   end
-
+end
   if #elements <= 0 then
     table.insert(elements,{
       label = "No players nearby."
