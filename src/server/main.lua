@@ -91,9 +91,9 @@ KashChosen = function(charId)
 
 
 
-  local xPlayer = RSCore.Functions.GetPlayer(_source)
+  local xPlayer = FXCore.Functions.GetPlayer(_source)
 
-  while not xPlayer do xPlayer = RSCore.Functions.GetPlayer(_source); Wait(0); end
+  while not xPlayer do xPlayer = FXCore.Functions.GetPlayer(_source); Wait(0); end
 
   local identifier = (KashCharacters[_source] and KashCharacters[_source]..":" or '')..xPlayer.PlayerData.steam
 
@@ -221,7 +221,7 @@ Init = function()
 
 
 
-                  vehData = RSCore.Shared.VehicleModels
+                  vehData = FXCore.Shared.VehicleModels
 
                     for k,v in pairs(vehData) do
 
@@ -387,7 +387,7 @@ PurchaseShop = function(source,callback,shop)
 
   local _source = source
 
-  local xPlayer = RSCore.Functions.GetPlayer(_source)
+  local xPlayer = FXCore.Functions.GetPlayer(_source)
 
   local can_buy = false
 
@@ -472,8 +472,8 @@ end
 
 
 VehiclePurchased = function(shopId,vehId,props)
-local xplauyerc = RSCore.Functions.GetPlayer(VehicleShops[shopId].owner)
-local vehiclemodel = RSCore.Shared.VehicleModels[props.model].model
+local xplauyerc = FXCore.Functions.GetPlayer(VehicleShops[shopId].owner)
+local vehiclemodel = FXCore.Shared.VehicleModels[props.model].model
   VehicleShops[shopId].funds = VehicleShops[shopId].funds - ShopVehicles[vehId].price
 
   TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
@@ -582,7 +582,7 @@ end
 
 TryBuy = function(source,callback,shop,veh,plate,class)
 
-  local xPlayer = RSCore.Functions.GetPlayer(source)
+  local xPlayer = FXCore.Functions.GetPlayer(source)
 
   local vehicle = VehicleShops[shop].displays[veh]
 
@@ -608,7 +608,7 @@ TryBuy = function(source,callback,shop,veh,plate,class)
 
     local identifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..xPlayer.PlayerData.steam
 
-    local vehiclemodel = RSCore.Shared.VehicleModels[plate.model].model
+    local vehiclemodel = FXCore.Shared.VehicleModels[plate.model].model
 
     VehicleShops[shop].funds = VehicleShops[shop].funds + vehicle.price
 
@@ -672,7 +672,7 @@ DriveVehicle = function(source,callback,shop,veh)
 
   end
 
-local xplayer = RSCore.Functions.GetIdentifier("steam",VehicleShops[shop].owner)
+local xplayer = FXCore.Functions.GetIdentifier("steam",VehicleShops[shop].owner)
 
   SqlExecute("INSERT INTO player_vehicles SET steam=@owner ,citizenid = '"..xplayer.PlayerData.citizenid.."',plate=@plate,vehicle=@vehicle",{['@owner'] = VehicleShops[shop].owner,['@plate'] = vehData.vehicle.plate,['@vehicle'] = json.encode(vehData.vehicle)})
 
@@ -784,7 +784,7 @@ AddFunds = function(shop_key,amount)
 
   local _source = source
 
-  local xPlayer = RSCore.Functions.GetPlayer(_source)
+  local xPlayer = FXCore.Functions.GetPlayer(_source)
 
   local can_purchase = false
 
@@ -812,11 +812,11 @@ AddFunds = function(shop_key,amount)
 
     TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
 
-    TriggerClientEvent("RSCore:Notify",_source,"You added $~g~"..amount.."~s~ to the shops funds.")
+    TriggerClientEvent("FXCore:Notify",_source,"You added $~g~"..amount.."~s~ to the shops funds.")
 
   else
 
-    TriggerClientEvent("RSCore:Notify",_source,"You can't afford that.")
+    TriggerClientEvent("FXCore:Notify",_source,"You can't afford that.")
 
   end
 
@@ -830,7 +830,7 @@ TakeFunds = function(shop_key,amount)
 
   if VehicleShops[shop_key].funds >= amount then
 
-    local xPlayer = RSCore.Functions.GetPlayer(_source)
+    local xPlayer = FXCore.Functions.GetPlayer(_source)
 
     local identifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..xPlayer.getIdentifier()
 
@@ -852,13 +852,13 @@ TakeFunds = function(shop_key,amount)
 
       TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
 
-      TriggerClientEvent("RSCore:Notify",_source,"You took $~r~"..amount.."~s~ from the shops funds.")
+      TriggerClientEvent("FXCore:Notify",_source,"You took $~r~"..amount.."~s~ from the shops funds.")
 
     end
 
   else
 
-    TriggerClientEvent("RSCore:Notify",_source,"The shop doesn't have that many funds.")
+    TriggerClientEvent("FXCore:Notify",_source,"The shop doesn't have that many funds.")
 
   end
 
@@ -868,7 +868,7 @@ end
 
 HirePlayer = function(shop_key,target_id)
 
-  local mPlayer = RSCore.Functions.GetPlayer(source)
+  local mPlayer = FXCore.Functions.GetPlayer(source)
 
   local mIdentifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..mPlayer.getIdentifier()
 
@@ -876,7 +876,7 @@ HirePlayer = function(shop_key,target_id)
 
   if shop and shop.owner and shop.owner == mIdentifier then
 
-    local xPlayer = RSCore.Functions.GetPlayer(target_id)
+    local xPlayer = FXCore.Functions.GetPlayer(target_id)
 
     SqlFetch('SELECT firstname, lastname FROM `users` WHERE `identifier` = @identifier', {['@identifier'] = xPlayer.getIdentifier()}, function(result)  
 
@@ -904,7 +904,7 @@ end
 
 FirePlayer = function(shop_key,target_id)
 
-  local mPlayer = RSCore.Functions.GetPlayer(source)
+  local mPlayer = FXCore.Functions.GetPlayer(source)
 
   local mIdentifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..mPlayer.getIdentifier()
 
@@ -936,7 +936,7 @@ end
 
 PayPlayer = function(shop_key,target_id,amount)
 
-  local mPlayer = RSCore.Functions.GetPlayer(source)
+  local mPlayer = FXCore.Functions.GetPlayer(source)
 
   local mIdentifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..mPlayer.getIdentifier()
 
@@ -954,11 +954,11 @@ PayPlayer = function(shop_key,target_id,amount)
 
         if KashPlayers[target_id] then
 
-          xPlayer = RSCore.Functions.GetPlayer(KashPlayers[target_id].src)
+          xPlayer = FXCore.Functions.GetPlayer(KashPlayers[target_id].src)
 
         else
 
-          xPlayer = RSCore.Functions.GetPlayerentifier(target_id)
+          xPlayer = FXCore.Functions.GetPlayerentifier(target_id)
 
         end
 
@@ -978,7 +978,7 @@ PayPlayer = function(shop_key,target_id,amount)
 
           shop.funds = shop.funds - amount
 
-          TriggerClientEvent("RSCore:Notify",source,string.format("Payed %s %s $%i.",v.identity.firstname,v.identity.lastname,amount))
+          TriggerClientEvent("FXCore:Notify",source,string.format("Payed %s %s $%i.",v.identity.firstname,v.identity.lastname,amount))
 
           SqlExecute("UPDATE "..(Config and Config.ShopTable or "vehicle_shops").." SET funds=funds - @amount WHERE name=@name",{['@amount'] = amount, ['@name'] = VehicleShops[shop_key].name})
 
@@ -986,7 +986,7 @@ PayPlayer = function(shop_key,target_id,amount)
 
         else
 
-          TriggerClientEvent("RSCore:Notify",source,"Player is not online.")
+          TriggerClientEvent("FXCore:Notify",source,"Player is not online.")
 
         end
 
@@ -1002,17 +1002,17 @@ end
 
 
 
-RSCore.Functions.CreateCallback("VehicleShops:GetVehicleShops", GetVehicleShops)
+FXCore.Functions.CreateCallback("VehicleShops:GetVehicleShops", GetVehicleShops)
 
-RSCore.Functions.CreateCallback("VehicleShops:GetVehicleOwner", GetVehicleOwner)
+FXCore.Functions.CreateCallback("VehicleShops:GetVehicleOwner", GetVehicleOwner)
 
-RSCore.Functions.CreateCallback("VehicleShops:GenerateNewPlate", GenerateNewPlate)
+FXCore.Functions.CreateCallback("VehicleShops:GenerateNewPlate", GenerateNewPlate)
 
-RSCore.Functions.CreateCallback("VehicleShops:TryBuy", TryBuy)
+FXCore.Functions.CreateCallback("VehicleShops:TryBuy", TryBuy)
 
-RSCore.Functions.CreateCallback("VehicleShops:PurchaseShop", PurchaseShop)
+FXCore.Functions.CreateCallback("VehicleShops:PurchaseShop", PurchaseShop)
 
-RSCore.Functions.CreateCallback("VehicleShops:DriveVehicle", DriveVehicle)
+FXCore.Functions.CreateCallback("VehicleShops:DriveVehicle", DriveVehicle)
 
 
 

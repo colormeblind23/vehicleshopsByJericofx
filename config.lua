@@ -1,7 +1,7 @@
 -- https://modit.store
 -- ModFreakz
 
-TriggerEvent("RSCore:GetObject", function(obj) RSCore = obj; end)
+TriggerEvent("FXCore:GetObject", function(obj) FXCore = obj; end)
 
 Config = {
   StockStolenPedVehicles    = false,

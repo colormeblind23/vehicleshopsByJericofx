@@ -17,7 +17,7 @@ VehicleShops.Init = function()
   local start = GetGameTimer()
 
   while (GetGameTimer() - start) < 2000 do Wait(0); end
-  RSCore.Functions.TriggerCallback("VehicleShops:GetVehicleShops",function(shopData,kashId)
+  FXCore.Functions.TriggerCallback("VehicleShops:GetVehicleShops",function(shopData,kashId)
     VehicleShops.KashId = (kashId or false)
     VehicleShops.Shops  = (shopData.shops or {})
     VehicleShops.WarehouseVehicles = (shopData.vehicles or {})
@@ -31,7 +31,7 @@ end
 VehicleShops.WarehouseRefresh = function(data)
   VehicleShops.WarehouseVehicles = data
   if InsideWarehouse then
-    RSCore.Functions.Notify("Warehouse stock refreshsed. You must re-enter the building.")
+    FXCore.Functions.Notify("Warehouse stock refreshsed. You must re-enter the building.")
     VehicleShops.LeaveWarehouse()
   end
 end
@@ -86,7 +86,7 @@ VehicleShops.Update = function()
 
             SetModelAsNoLongerNeeded(v.vehicle.model)
 
-            RSCore.Functions.SetVehicleProperties(veh,v.vehicle)
+            FXCore.Functions.SetVehicleProperties(veh,v.vehicle)
 
             v.entity = veh
 
@@ -106,8 +106,8 @@ VehicleShops.Update = function()
           local pos = VehicleShops.Shops[closest].displays[closestVeh].location
 
           local label = GetLabelText(GetDisplayNameFromVehicleModel(VehicleShops.Shops[closest].displays[closestVeh].vehicle.model))
-          local veshare = RSCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].name
-          local mods = RSCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].brand
+          local veshare = FXCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].name
+          local mods = FXCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].brand
           local price = (VehicleShops.Shops[closest].displays[closestVeh].price or false)
           local min,max = GetModelDimensions( VehicleShops.Shops[closest].displays[closestVeh].vehicle.model )
           if mods ~= nil then
@@ -159,11 +159,11 @@ end
 
 VehicleShops.PurchasedShop = function(shop)
   local closest,dist = VehicleShops.GetClosestShop()
-  RSCore.Functions.TriggerCallback("VehicleShops:PurchaseShop",function(can_buy)
+  FXCore.Functions.TriggerCallback("VehicleShops:PurchaseShop",function(can_buy)
     if can_buy then
-      RSCore.Functions.Notify(string.format("Compraste un Vehiculo por $%i.",VehicleShops.Shops[closest].price))
+      FXCore.Functions.Notify(string.format("Compraste un Vehiculo por $%i.",VehicleShops.Shops[closest].price))
     else
-      RSCore.Functions.Notify("No puedo pagar eso.")
+      FXCore.Functions.Notify("No puedo pagar eso.")
     end
   end,closest)
 end
@@ -171,14 +171,14 @@ end
 VehicleShops.PurchaseStockVehicle = function(vehicle_data,shop_key)
   if VehicleShops.Shops[shop_key].funds >= vehicle_data.price then
     local label = GetLabelText(GetDisplayNameFromVehicleModel(vehicle_data.model))
-    RSCore.Functions.Notify("Compraste "..label.." por $"..vehicle_data.price," con exito")
+    FXCore.Functions.Notify("Compraste "..label.." por $"..vehicle_data.price," con exito")
 
     local plyPed = GetPlayerPed(-1)
     local plyPos = GetEntityCoords(plyPed)
     DoScreenFadeOut(500)
     Wait(500)
-    local props = RSCore.Functions.GetVehicleProperties(vehicle_data.ent)
-    RSCore.Functions.TriggerCallback("VehicleShops:GenerateNewPlate",function(newPlate)
+    local props = FXCore.Functions.GetVehicleProperties(vehicle_data.ent)
+    FXCore.Functions.TriggerCallback("VehicleShops:GenerateNewPlate",function(newPlate)
       props.plate = newPlate
 
       RequestModel(props.model)
@@ -192,7 +192,7 @@ VehicleShops.PurchaseStockVehicle = function(vehicle_data,shop_key)
 
       TriggerServerEvent("VehicleShops:VehiclePurchased",shop_key,vehicle_data.key,props)
 
-      RSCore.Functions.SetVehicleProperties(newVeh,props)
+      FXCore.Functions.SetVehicleProperties(newVeh,props)
 
       SetVehicleEngineOn(newVeh,true,true,true)
       TaskWarpPedIntoVehicle(plyPed,newVeh,-1)
@@ -208,22 +208,22 @@ VehicleShops.PurchaseStockVehicle = function(vehicle_data,shop_key)
       VehicleShops.DespawnShop()
     end)
   else
-    RSCore.Functions.Notify("Fondos insuficientes.","error")
+    FXCore.Functions.Notify("Fondos insuficientes.","error")
   end
 end
 
 VehicleShops.PurchaseStock = function(vehicle)
   local elements = {}
-  local PlayerData = RSCore.Functions.GetPlayerData()
+  local PlayerData = FXCore.Functions.GetPlayerData()
   for key,val in pairs(VehicleShops.Shops) do
-    if ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) == val.owner then
+    if PlayerData.steam == val.owner then
       table.insert(elements,{
         label = "[$"..val.funds.."] "..val.name,
         value = key
       })
     else
       for k,v in pairs(val.employees) do
-        if v.identifier == ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) then
+        if v.identifier == PlayerData.steam then
           table.insert(elements,{
             label = "[$"..val.funds.."] "..val.name,
             value = key
@@ -258,7 +258,7 @@ end
 
 VehicleShops.EnterWarehouse = function(...)
   local plyPed = GetPlayerPed(-1)
-  RSCore.Functions.Notify("Espera a que los modelos carguen")
+  FXCore.Functions.Notify("Espera a que los modelos carguen")
   Wait(1000)
 
   DoScreenFadeOut(500)
@@ -294,7 +294,7 @@ VehicleShops.ManageDisplays = function(shop_key)
 
   for _,vehicle_data in pairs(shop.stock) do
     if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
-      local veshare = RSCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
+      local veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
       table.insert(elements,{
         label = "["..(vehicle_data.vehicle.plate or '').."] "..veshare,
         value = vehicle_data,
@@ -335,8 +335,8 @@ VehicleShops.ManageDisplayed = function(shop_key)
   if TableCount(shop.displays) > 0 then
     for _,vehicle_data in pairs(shop.displays) do
       if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
-        local veshare = RSCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
-        local mods = RSCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
+        local veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
+        local mods = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
         table.insert(elements,{
           label = "["..vehicle_data.vehicle.plate.."] "..mods.." | "..veshare,
           value = vehicle_data,
@@ -371,18 +371,18 @@ VehicleShops.ManageDisplayed = function(shop_key)
 end
 
 VehicleShops.DoSetPrice = function(shop,vehicle)
-  TriggerEvent("Input:Open","Fijar precio","RSCore",function(p)
+  TriggerEvent("Input:Open","Fijar precio","FXCore",function(p)
     local price = (p and tonumber(p) and tonumber(p) > 0 and tonumber(p) or false)
     if not price then
-      RSCore.Functions.Notify("Establecer un precio válido.")
+      FXCore.Functions.Notify("Establecer un precio válido.")
       Wait(200)
       VehicleShops.DoSetPrice(shop,vehicle)
     else      
       
       local vehData = VehicleShops.Shops[shop].displays[vehicle]
-      local veshare = RSCore.Shared.VehicleModels[vehData.vehicle.model].name
-      local mods = RSCore.Shared.VehicleModels[vehData.vehicle.model].brand
-      RSCore.Functions.Notify("Tú fijas el precio del "..mods.." | "..veshare.." at $"..price)
+      local veshare = FXCore.Shared.VehicleModels[vehData.vehicle.model].name
+      local mods = FXCore.Shared.VehicleModels[vehData.vehicle.model].brand
+      FXCore.Functions.Notify("Tú fijas el precio del "..mods.." | "..veshare.." at $"..price)
       TriggerServerEvent("VehicleShops:SetPrice",vehicle,shop,price)
       VehicleShops.ManagementMenu(shop)
     end
@@ -409,7 +409,7 @@ VehicleShops.ManageShop = function(shop_key)
     local current = btn.Value.value
     if current == "Add" then
       input_open = true
-      TriggerEvent("Input:Open","Añadir Fondos","RSCore",function(res)
+      TriggerEvent("Input:Open","Añadir Fondos","FXCore",function(res)
         res = (res and tonumber(res) and tonumber(res) > 0 and tonumber(res) or false)
         input_open = false
         if res then
@@ -419,7 +419,7 @@ VehicleShops.ManageShop = function(shop_key)
       end)
     elseif current == "Take" then
       input_open = true
-      TriggerEvent("Input:Open","Tomar Fondos","RSCore",function(res)
+      TriggerEvent("Input:Open","Tomar Fondos","FXCore",function(res)
         res = (res and tonumber(res) and tonumber(res) > 0 and tonumber(res) or false)
         input_open = false
         if res then
@@ -428,7 +428,7 @@ VehicleShops.ManageShop = function(shop_key)
         VehicleShops.ManagementMenu(shop_key)
       end)
     elseif current == "Check" then
-      RSCore.Functions.Notify("Fondos: $"..VehicleShops.Shops[shop_key].funds,1)
+      FXCore.Functions.Notify("Fondos: $"..VehicleShops.Shops[shop_key].funds,1)
       VehicleShops.ManageShop(shop_key)
     end
   
@@ -506,7 +506,7 @@ VehicleShops.DriveVehicle = function(shop_key)
   local button = AccountMain:AddButton({ icon = "🚗 	", label = v.label, value = v ,select = function(btn)
     local current = btn.Value.value
     if current then
-    RSCore.Functions.TriggerCallback("VehicleShops:DriveVehicle",function(can_drive)
+    FXCore.Functions.TriggerCallback("VehicleShops:DriveVehicle",function(can_drive)
       print("Cb1")
     if can_drive then
         print("Cb2")
@@ -520,12 +520,12 @@ VehicleShops.DriveVehicle = function(shop_key)
 
         local veh = CreateVehicle(props.model,pos.x,pos.y,pos.z,pos.heading,true,true)
         SetEntityAsMissionEntity(veh,true,true)
-        RSCore.Functions.SetVehicleProperties(veh,props)
+        FXCore.Functions.SetVehicleProperties(veh,props)
         TaskWarpPedIntoVehicle(GetPlayerPed(-1),veh,-1)
         SetVehicleEngineOn(veh,true)
       else
         print("Cb3")
-        RSCore.Functions.Notify(msg)
+        FXCore.Functions.Notify(msg)
       end
     end,shop_key,current.key)
   else
@@ -569,7 +569,7 @@ VehicleShops.ManageVehicles = function(shop_key)
   end})
 
   end
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_vehicles', {
+  --[[ FXCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_vehicles', {
     title    = "Vehiculos",
     align    = 'top-left',
     elements = elements
@@ -598,7 +598,7 @@ end
 VehicleShops.HireMenu = function(shop_key)
   local elements = {}
   local ply = PlayerId()
-  local coordinates = RSCore.Functions.GetClosestPlayer()
+  local coordinates = FXCore.Functions.GetClosestPlayer()
   if coordinates == "table" then
 
   for k,v in pairs(coordinates) do
@@ -634,7 +634,7 @@ end
   end})
 
   end
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'hire_player', {
+  --[[ FXCore.UI.Menu.Open('default', GetCurrentResourceName(), 'hire_player', {
     title    = "Hire",
     align    = 'top-left',
     elements = elements
@@ -691,7 +691,7 @@ VehicleShops.FireMenu = function(shop_key)
   end})
 
   end
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'fire_player', {
+  --[[ FXCore.UI.Menu.Open('default', GetCurrentResourceName(), 'fire_player', {
     title    = "Despedir",
     align    = 'top-left',
     elements = elements
@@ -740,13 +740,13 @@ VehicleShops.PayMenu = function(shop_key)
    
 
     if current.value then
-      TriggerEvent("Input:Open","Pay Amount","RSCore",function(amount)
+      TriggerEvent("Input:Open","Pay Amount","FXCore",function(amount)
         amount = (tonumber(amount) ~= nil and tonumber(amount) >= 1 and tonumber(amount) or false)
         if not amount then
-          RSCore.Functions.Notify("Invalid amount entered.")
+          FXCore.Functions.Notify("Invalid amount entered.")
         else
           if VehicleShops.Shops[shop_key].funds < amount then
-            RSCore.Functions.Notify("Shop doesn't have this much funds.")
+            FXCore.Functions.Notify("Shop doesn't have this much funds.")
           else
             TriggerServerEvent("VehicleShops:PayPlayer",shop_key,current.value,amount)
           end
@@ -788,7 +788,7 @@ VehicleShops.ManageEmployees = function(shop_key)
 
   end
 
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_employees', {
+  --[[ FXCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_employees', {
     title    = "Employees",
     align    = 'top-left',
     elements = elements
@@ -814,7 +814,7 @@ end
 VehicleShops.ManagementMenu = function(shop_key)
   local elements = {}
 print()
-  local PlayerData = RSCore.Functions.GetPlayerData()
+  local PlayerData = FXCore.Functions.GetPlayerData()
 
   if VehicleShops.Shops[shop_key].owner == PlayerData.steam then
     elements = {
@@ -847,7 +847,7 @@ print()
   end})
 
   end
-  --[[ RSCore.UI.Menu.Open('default', GetCurrentResourceName(), 'management_menu', {
+  --[[ FXCore.UI.Menu.Open('default', GetCurrentResourceName(), 'management_menu', {
     title    = "Management",
     align    = 'top-left',
     elements = elements
@@ -877,7 +877,7 @@ VehicleShops.DepositVehicle = function(shop_key)
     if driver == ply_ped then
       VehicleShops.CanStockVehicle(shop_key,ply_veh,function(can_store,do_delete)
         if can_store then
-          local props = RSCore.Functions.GetVehicleProperties(ply_veh)
+          local props = FXCore.Functions.GetVehicleProperties(ply_veh)
           TriggerServerEvent("VehicleShops:StockedVehicle",props,shop_key,do_delete)
           TaskLeaveVehicle(ply_ped,ply_veh,0)
           TaskEveryoneLeaveVehicle(ply_veh)
@@ -892,7 +892,7 @@ end
 VehicleShops.CanStockVehicle = function(shop_key,vehicle,callback)
   local plyPed = GetPlayerPed(-1)
   local isEmployed = false
-  local PlayerData = RSCore.Functions.GetPlayerData()
+  local PlayerData = FXCore.Functions.GetPlayerData()
   if VehicleShops.Shops[shop_key].owner == ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) then 
     isEmployed = true
   else
@@ -904,9 +904,9 @@ VehicleShops.CanStockVehicle = function(shop_key,vehicle,callback)
     end
   end
   if not isEmployed then return false; end
-  local props = RSCore.Functions.GetVehicleProperties(vehicle)
+  local props = FXCore.Functions.GetVehicleProperties(vehicle)
   
-  RSCore.Functions.TriggerCallback("VehicleShops:GetVehicleOwner",function(owner)
+  FXCore.Functions.TriggerCallback("VehicleShops:GetVehicleOwner",function(owner)
     print(tostring(props.plate))
     print(tostring(VehicleShops.Shops[shop_key].owner))
     if owner and VehicleShops.Shops[shop_key].owner:match(owner)  then
@@ -917,7 +917,7 @@ VehicleShops.CanStockVehicle = function(shop_key,vehicle,callback)
         if Config.StockStolenPedVehicles then
           callback(true,false)
         else
-          RSCore.Functions.Notify("No puede almacenar vehículos robados.")
+          FXCore.Functions.Notify("No puede almacenar vehículos robados.")
           callback(false)
         end
         return
@@ -925,7 +925,7 @@ VehicleShops.CanStockVehicle = function(shop_key,vehicle,callback)
         if Config.StockStolenPlayerVehicles then
           callback(true,true)
         else
-          RSCore.Functions.Notify("No puedes almacenar vehículos de otros jugadores..")
+          FXCore.Functions.Notify("No puedes almacenar vehículos de otros jugadores..")
           callback(false)
         end
         return
@@ -959,10 +959,10 @@ VehicleShops.RefreshBlips = function()
   local dictStreamed = false
   local startTime = GetGameTimer()
 
-  local PlayerData = RSCore.Functions.GetPlayerData()
+  local PlayerData = FXCore.Functions.GetPlayerData()
   local is_dealer = false
   for k,v in pairs(VehicleShops.Shops) do
-    if v.owner == ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) then
+    if v.owner == PlayerData.steam then
       is_dealer = true
     end
     if not is_dealer then
@@ -1038,11 +1038,11 @@ VehicleShops.RefreshBlips = function()
       else
         local render_menus = false
         for k,v in pairs(VehicleShops.Shops[k].employees) do
-          if v.identifier == ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) then
+          if v.identifier == PlayerData.steam then
             render_menus = true
           end
         end
-        if not render_menus and ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) == v.owner then
+        if not render_menus and PlayerData.steam == v.owner then
           render_menus = true
         end
         if render_menus then
@@ -1142,19 +1142,19 @@ end
 VehicleShops.PurchaseDisplay = function(shop_key,veh_key,veh_ent)
   local price = VehicleShops.Shops[shop_key].displays[veh_key].price
   if not price then return; end
-  local props = RSCore.Functions.GetVehicleProperties(veh_ent)
-  RSCore.Functions.TriggerCallback("VehicleShops:TryBuy",function(canBuy,msg)
+  local props = FXCore.Functions.GetVehicleProperties(veh_ent)
+  FXCore.Functions.TriggerCallback("VehicleShops:TryBuy",function(canBuy,msg)
     if canBuy then
       RequestModel(props.model)
       while not HasModelLoaded(props.model) do Wait(0); end
       local pos = VehicleShops.Shops[shop_key].locations.purchased
       local veh = CreateVehicle(props.model,pos.x,pos.y,pos.z,pos.heading,true,true)
       SetEntityAsMissionEntity(veh,true,true)
-      RSCore.Functions.SetVehicleProperties(veh,props)
+      FXCore.Functions.SetVehicleProperties(veh,props)
       TaskWarpPedIntoVehicle(GetPlayerPed(-1),veh,-1)
       SetVehicleEngineOn(veh,true)
     else
-      RSCore.Functions.Notify(msg)
+      FXCore.Functions.Notify(msg)
     end
   end,shop_key,veh_key,props,GetVehicleClass(veh_ent))
 end
@@ -1173,7 +1173,7 @@ VehicleShops.DoDisplayVehicle = function(shopKey,vehKey,vehData)
   SetEntityCollision(displayVehicle,true,true)
   while not DoesEntityExist(displayVehicle) do Wait(0); end 
 
-  RSCore.Functions.SetVehicleProperties(displayVehicle,props)
+  FXCore.Functions.SetVehicleProperties(displayVehicle,props)
   Wait(500)
 
   local scaleform = GetMoveScaleform()
@@ -1293,21 +1293,21 @@ VehicleShops.CreateNew = function(...)
   local closest,dist = VehicleShops.GetClosestShop()
 
   if closest and dist and dist < 20.0 then
-    RSCore.Functions.Notify("You're too close to another vehicle shop.")
+    FXCore.Functions.Notify("You're too close to another vehicle shop.")
     return
   end
 
-  TriggerEvent("Input:Open","Set Shop Name","RSCore",function(n)
+  TriggerEvent("Input:Open","Set Shop Name","FXCore",function(n)
     local name = (n and tostring(n) and tostring(n):len() and tostring(n):len() > 0 and tostring(n) or false)
-    if not name then RSCore.Functions.Notify("Enter a valid name next time."); return; end
+    if not name then FXCore.Functions.Notify("Enter a valid name next time."); return; end
     Wait(200)
-    TriggerEvent("Input:Open","Set Shop Price","RSCore",function(p)
+    TriggerEvent("Input:Open","Set Shop Price","FXCore",function(p)
       local price = (p and tonumber(p) and tonumber(p) > 0 and tonumber(p) or false)
-      if not price then RSCore.Functions.Notify("Enter a valid price next time."); return; end
+      if not price then FXCore.Functions.Notify("Enter a valid price next time."); return; end
       while true do
         if not locations.blip then
           if not warnBlip then
-            RSCore.Functions.Notify("Press G to set the blip location.")
+            FXCore.Functions.Notify("Press G to set the blip location.")
             warnBlip = true
           end
           if IsControlJustReleased(0,47) then
@@ -1316,7 +1316,7 @@ VehicleShops.CreateNew = function(...)
           end
         elseif not locations.entry then
           if not warnEntry then
-            RSCore.Functions.Notify("Press G to set the entry/purchase shop location.")
+            FXCore.Functions.Notify("Press G to set the entry/purchase shop location.")
             warnEntry = true
           end
           if IsControlJustReleased(0,47) then
@@ -1325,7 +1325,7 @@ VehicleShops.CreateNew = function(...)
           end
         elseif not locations.management then
           if not warnManage then
-            RSCore.Functions.Notify("Press G to set the management menu location.")
+            FXCore.Functions.Notify("Press G to set the management menu location.")
             warnManage = true
           end
           if IsControlJustReleased(0,47) then
@@ -1334,7 +1334,7 @@ VehicleShops.CreateNew = function(...)
           end
         elseif not locations.spawn then
           if not warnSpawn then
-            RSCore.Functions.Notify("Press G to set the vehicle spawn location (inside).")
+            FXCore.Functions.Notify("Press G to set the vehicle spawn location (inside).")
             warnSpawn = true
           end
           if IsControlJustReleased(0,47) then
@@ -1346,7 +1346,7 @@ VehicleShops.CreateNew = function(...)
           end
         elseif not locations.purchased then
           if not warnPurchased then
-            RSCore.Functions.Notify("Press G to set the vehicle spawn location (outside).")
+            FXCore.Functions.Notify("Press G to set the vehicle spawn location (outside).")
             warnPurchased = true
           end
           if IsControlJustReleased(0,47) then
@@ -1358,7 +1358,7 @@ VehicleShops.CreateNew = function(...)
           end
         elseif not locations.deposit then
           if not warnDeposit then        
-            RSCore.Functions.Notify("Press G to set the vehicle deposit location.")
+            FXCore.Functions.Notify("Press G to set the vehicle deposit location.")
             warnDeposit = true
           end
           if IsControlJustReleased(0,47) then
@@ -1366,7 +1366,7 @@ VehicleShops.CreateNew = function(...)
             Wait(0)
           end
         else 
-          RSCore.Functions.Notify("Shop created, name: "..name..", price: "..price)
+          FXCore.Functions.Notify("Shop created, name: "..name..", price: "..price)
           TriggerServerEvent("VehicleShops:Create", name, locations, price)
           return
         end
