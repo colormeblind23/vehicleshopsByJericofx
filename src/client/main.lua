@@ -88,7 +88,8 @@ VehicleShops.Update = function()
             SetModelAsNoLongerNeeded(v.vehicle.model)
 
             FXCore.Functions.SetVehicleProperties(veh,v.vehicle)
-
+    TriggerEvent('vehiclekeys:client:SetOwner', v.vehicle.plate)
+    TriggerEvent('vehiclekeys:client:ToggleEngine')
             v.entity = veh
 
             VehicleShops.SpawnedVehicles[v.vehicle.plate] = veh
@@ -209,6 +210,8 @@ VehicleShops.PurchaseStockVehicle = function(vehicle_data,shop_key)
       SetEntityHeading(newVeh,targetPos.w)
       SetVehicleOnGroundProperly(newVeh)
       SetEntityAsMissionEntity(newVeh,true,true)
+      TriggerEvent('vehiclekeys:client:SetOwner', props.plate )
+      TriggerEvent('vehiclekeys:client:ToggleEngine')
       DoScreenFadeIn(500)
 
       InsideWarehouse = false
@@ -554,7 +557,9 @@ VehicleShops.DriveVehicle = function(shop_key)
         SetEntityAsMissionEntity(veh,true,true)
         FXCore.Functions.SetVehicleProperties(veh,props)
         TaskWarpPedIntoVehicle(GetPlayerPed(-1),veh,-1)
-        SetVehicleEngineOn(veh,true)
+        --SetVehicleEngineOn(veh,true)
+        TriggerEvent('vehiclekeys:client:SetOwner', props.plate )
+       TriggerEvent('vehiclekeys:client:ToggleEngine')
       else
         print("Cb3")
         FXCore.Functions.Notify(msg)
@@ -1106,6 +1111,7 @@ VehicleShops.SpawnShop = function()
       SetEntityAsMissionEntity(veh,true,true)
       SetVehicleUndriveable(veh,true)
       SetVehicleDoorsLocked(veh,2)
+      SetVehicleEngineOn(veh,true)
     end
     SetModelAsNoLongerNeeded(hash)
   end  
