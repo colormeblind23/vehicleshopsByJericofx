@@ -12,7 +12,8 @@
  ]]
 
 error = function(...) end
-
+JERICO = {}
+JERICO.UseCustomFile = true
 
 
 KashCharacters  = {}
@@ -220,9 +221,12 @@ Init = function()
                   end
 
 
-
+                  if JERICO.UseCustomFile then
+                    vehData = Customs.VehicleModels
+                  else
+                  
                   vehData = FXCore.Shared.VehicleModels
-
+                  end
                     for k,v in pairs(vehData) do
 
                       table.insert(WarehouseVehicles,{name = v.name,model = v.model,price = v.price})

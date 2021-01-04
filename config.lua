@@ -10,6 +10,7 @@ Config = {
 
   BankAccountName = "bank",
   CashAccountName = "cash",
+  UseCustomFile = false,
 }
 
 Warehouse = {  
