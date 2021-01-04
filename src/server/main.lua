@@ -12,8 +12,7 @@
  ]]
 
 error = function(...) end
-JERICO = {}
-JERICO.UseCustomFile = true
+
 
 
 KashCharacters  = {}
