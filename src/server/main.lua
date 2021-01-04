@@ -514,7 +514,6 @@ end
 
 
 SetDisplayed = function(shop,veh,pos)
-  print("517 "..VehicleShops[shop].stock[veh])
   local vehData = CopyTable(VehicleShops[shop].stock[veh])
 
   vehData.location = pos
@@ -544,7 +543,6 @@ end
 
 
 RemoveDisplay = function(shop,veh)
-  print("547 "..VehicleShops[shop].displays[veh])
   local vehData = CopyTable(VehicleShops[shop].displays[veh])
 
   vehData.price = nil
@@ -662,7 +660,7 @@ end
 DriveVehicle = function(source,callback,shop,veh)
 
   local vehData = CopyTable(VehicleShops[shop].stock[veh])
-
+  local vehiclemodel = FXCore.Shared.VehicleModels[vehData.vehicle.model].model
   for k,v in pairs(VehicleShops[shop].stock) do
 
     if v.vehicle.plate == vehData.vehicle.plate then
@@ -677,7 +675,7 @@ DriveVehicle = function(source,callback,shop,veh)
 
 local xplayer = FXCore.Functions.GetPlayer(source)
 
-  SqlExecute("INSERT INTO player_vehicles SET steam=@owner ,citizenid = '"..xplayer.PlayerData.citizenid.."',plate=@plate,vehicle=@vehicle",{['@owner'] = VehicleShops[shop].owner,['@plate'] = vehData.vehicle.plate,['@vehicle'] = json.encode(vehData.vehicle)})
+  SqlExecute("INSERT INTO player_vehicles SET steam=@owner ,citizenid = '"..xplayer.PlayerData.citizenid.."',plate=@plate,vehicle = '"..vehiclemodel.."',hash = '"..vehData.vehicle.model.."',mods=@vehicle",{['@owner'] = VehicleShops[shop].owner,['@plate'] = vehData.vehicle.plate,['@vehicle'] = json.encode(vehData.vehicle)})
 
   TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
 
