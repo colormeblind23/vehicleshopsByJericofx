@@ -291,10 +291,10 @@ VehicleShops.ManageDisplays = function(shop_key)
   local shop = VehicleShops.Shops[shop_key]
 
   local elements = {}
-
   for _,vehicle_data in pairs(shop.stock) do
     if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
       local veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
+      
       table.insert(elements,{
         label = "["..(vehicle_data.vehicle.plate or '').."] "..veshare,
         value = vehicle_data,
@@ -893,11 +893,11 @@ VehicleShops.CanStockVehicle = function(shop_key,vehicle,callback)
   local plyPed = GetPlayerPed(-1)
   local isEmployed = false
   local PlayerData = FXCore.Functions.GetPlayerData()
-  if VehicleShops.Shops[shop_key].owner == ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) then 
+  if VehicleShops.Shops[shop_key].owner == PlayerData.steam then 
     isEmployed = true
   else
     for k,v in pairs(VehicleShops.Shops[shop_key].employees) do
-      if v.identifier == ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) then
+      if v.identifier == PlayerData.steam then
         isEmployed = true
         break
       end
@@ -967,7 +967,7 @@ VehicleShops.RefreshBlips = function()
     end
     if not is_dealer then
       for k,v in pairs(v.employees) do
-        if v.identifier == ((VehicleShops.KashId and VehicleShops.KashId..":" or "")..PlayerData.steam) then
+        if v.identifier == PlayerData.steam then
           is_dealer = true
         end
       end
