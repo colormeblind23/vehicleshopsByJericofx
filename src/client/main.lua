@@ -37,6 +37,8 @@ VehicleShops.WarehouseRefresh = function(data)
 end
 
 VehicleShops.Update = function()
+  local veshare
+  local mods
   while true do
     local wait_time = 0
     local plyPos = GetEntityCoords(GetPlayerPed(-1))
@@ -107,11 +109,11 @@ VehicleShops.Update = function()
 
           local label = GetLabelText(GetDisplayNameFromVehicleModel(VehicleShops.Shops[closest].displays[closestVeh].vehicle.model))
           if JERICO.UseCustomFile then
-            local veshare = Customs.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].name
-            local mods = Customs.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].brand
+            veshare = Customs.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].name
+             mods = Customs.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].brand
           else
-            local veshare = FXCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].name
-            local mods = FXCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].brand
+             veshare = FXCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].name
+            mods = FXCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].brand
           end
          
           local price = (VehicleShops.Shops[closest].displays[closestVeh].price or false)
@@ -295,14 +297,14 @@ end
 
 VehicleShops.ManageDisplays = function(shop_key)
   local shop = VehicleShops.Shops[shop_key]
-
+  local veshare
   local elements = {}
   for _,vehicle_data in pairs(shop.stock) do
     if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
       if JERICO.UseCustomFile then
-        local veshare = Customs.VehicleModels[vehicle_data.vehicle.model].name
+         veshare = Customs.VehicleModels[vehicle_data.vehicle.model].name
       else
-        local veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
+        veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
       end
      
       
@@ -339,7 +341,8 @@ end
 
 VehicleShops.ManageDisplayed = function(shop_key)
   local shop = VehicleShops.Shops[shop_key]
-
+  local veshare
+  local mods
   local elements = {}
  
 
@@ -347,11 +350,11 @@ VehicleShops.ManageDisplayed = function(shop_key)
     for _,vehicle_data in pairs(shop.displays) do
       if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
         if JERICO.UseCustomFile then
-          local veshare = Customs.VehicleModels[vehicle_data.vehicle.model].name
-          local mods = Customs.VehicleModels[vehicle_data.vehicle.model].brand
+          veshare = Customs.VehicleModels[vehicle_data.vehicle.model].name
+          mods = Customs.VehicleModels[vehicle_data.vehicle.model].brand
         else
-          local veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
-        local mods = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
+          veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
+        mods = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
         end
 
         table.insert(elements,{
@@ -388,6 +391,8 @@ VehicleShops.ManageDisplayed = function(shop_key)
 end
 
 VehicleShops.DoSetPrice = function(shop,vehicle)
+  local veshare
+  local mods
   TriggerEvent("Input:Open","Fijar precio","FXCore",function(p)
     local price = (p and tonumber(p) and tonumber(p) > 0 and tonumber(p) or false)
     if not price then
@@ -398,11 +403,11 @@ VehicleShops.DoSetPrice = function(shop,vehicle)
       
       local vehData = VehicleShops.Shops[shop].displays[vehicle]
       if JERICO.UseCustomFile then
-        local veshare = Customs.VehicleModels[vehData.vehicle.model].name
-        local mods = Customs.VehicleModels[vehData.vehicle.model].brand
+         veshare = Customs.VehicleModels[vehData.vehicle.model].name
+         mods = Customs.VehicleModels[vehData.vehicle.model].brand
       else
-        local veshare = FXCore.Shared.VehicleModels[vehData.vehicle.model].name
-        local mods = FXCore.Shared.VehicleModels[vehData.vehicle.model].brand
+         veshare = FXCore.Shared.VehicleModels[vehData.vehicle.model].name
+         mods = FXCore.Shared.VehicleModels[vehData.vehicle.model].brand
       end
    
       FXCore.Functions.Notify("Tú fijas el precio del "..mods.." | "..veshare.." at $"..price)
