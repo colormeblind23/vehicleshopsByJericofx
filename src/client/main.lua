@@ -502,13 +502,20 @@ end
 
 VehicleShops.DriveVehicle = function(shop_key)
   local shop = VehicleShops.Shops[shop_key]
-
+ 
   local elements = {}
   if #shop.stock > 0 then
     for _,vehicle_data in pairs(shop.stock) do      
       if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
+        if JERICO.UseCustomFile then
+          veshare = Customs.VehicleModels[vehicle_data.vehicle.model].name
+           mods = Customs.VehicleModels[vehicle_data.vehicle.model].brand
+        else
+           veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
+          mods = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
+        end
         table.insert(elements,{
-          label = "["..vehicle_data.vehicle.plate.."] "..GetLabelText(GetDisplayNameFromVehicleModel(vehicle_data.vehicle.model)),
+          label = "["..vehicle_data.vehicle.plate.."] "..mods.." | "..veshare,
           value = vehicle_data,
           key   = _
         })
@@ -526,16 +533,17 @@ VehicleShops.DriveVehicle = function(shop_key)
   local AccountMain = MenuV:CreateMenu("Manejar", '', 'topleft', 255, 0, 0, 'size-125')
   MenuV:OpenMenu(AccountMain, function()
   end)
+ 
   for k,v in ipairs(elements) do
   local button = AccountMain:AddButton({ icon = "🚗 	", label = v.label, value = v ,select = function(btn)
-    local current = btn.Value.value
+    local current = btn.Value
     if current then
     FXCore.Functions.TriggerCallback("VehicleShops:DriveVehicle",function(can_drive)
       print("Cb1")
     if can_drive then
         print("Cb2")
        -- local vehicle = current.value
-        local props = vehicle.vehicle
+        local props = current.value.vehicle
         local pos = VehicleShops.Shops[shop_key].locations.purchased
 
         print(props,props.model)
@@ -593,30 +601,7 @@ VehicleShops.ManageVehicles = function(shop_key)
   end})
 
   end
-  --[[ FXCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_vehicles', {
-    title    = "Vehiculos",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      m.close()
-      clicked = true
-      local element = d.current
-      if element.value == "Display" then
-        VehicleShops.ManageDisplays(shop_key)
-      elseif element.value == "Store" then
-        VehicleShops.ManageDisplayed(shop_key)
-      elseif element.value == "Price" then
-        VehicleShops.ManagePrices(shop_key)
-      elseif element.value == "Drive" then
-        VehicleShops.DriveVehicle(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      VehicleShops.ManagementMenu(shop_key)
-    end
-  ) ]]
+
 end
 
 VehicleShops.HireMenu = function(shop_key)
@@ -658,26 +643,7 @@ end
   end})
 
   end
-  --[[ FXCore.UI.Menu.Open('default', GetCurrentResourceName(), 'hire_player', {
-    title    = "Hire",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      m.close()
-      local element = d.current
-      if element.value then
-        TriggerServerEvent("VehicleShops:HirePlayer",shop_key,element.value)
-        VehicleShops.ManageEmployees(shop_key)
-      else
-        VehicleShops.ManageEmployees(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      VehicleShops.ManageEmployees(shop_key)
-    end
-  ) ]]
+
 end
 
 VehicleShops.FireMenu = function(shop_key)

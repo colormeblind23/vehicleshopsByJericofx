@@ -514,7 +514,7 @@ end
 
 
 SetDisplayed = function(shop,veh,pos)
-  print(VehicleShops[shop].stock[veh])
+  print("517 "..VehicleShops[shop].stock[veh])
   local vehData = CopyTable(VehicleShops[shop].stock[veh])
 
   vehData.location = pos
@@ -544,7 +544,7 @@ end
 
 
 RemoveDisplay = function(shop,veh)
-
+  print("547 "..VehicleShops[shop].displays[veh])
   local vehData = CopyTable(VehicleShops[shop].displays[veh])
 
   vehData.price = nil
@@ -675,7 +675,7 @@ DriveVehicle = function(source,callback,shop,veh)
 
   end
 
-local xplayer = FXCore.Functions.GetIdentifier("steam",VehicleShops[shop].owner)
+local xplayer = FXCore.Functions.GetPlayer(source)
 
   SqlExecute("INSERT INTO player_vehicles SET steam=@owner ,citizenid = '"..xplayer.PlayerData.citizenid.."',plate=@plate,vehicle=@vehicle",{['@owner'] = VehicleShops[shop].owner,['@plate'] = vehData.vehicle.plate,['@vehicle'] = json.encode(vehData.vehicle)})
 
