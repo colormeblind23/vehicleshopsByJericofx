@@ -2,7 +2,7 @@
 -- ModFreakz
 JERICO = {}
 JERICO.UseCustomFile = true
-TriggerEvent("FXCore:GetObject", function(obj) FXCore = obj; end)
+TriggerEvent('FXCore:GetObject', function(obj) FXCore = obj end)
 
 Config = {
   StockStolenPedVehicles    = false,

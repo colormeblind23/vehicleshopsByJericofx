@@ -27,6 +27,14 @@ VehicleShops.Init = function()
   end)
 end
 
+--# JOE SZYMKOWICZ
+Citizen.CreateThread(function()
+  while true do
+      GLOBAL_PLYID = PlayerId()
+      GLOBAL_SRVID = GetPlayerServerId(GLOBAL_PLYID)
+      Wait(5000)
+  end
+end)
 
 
 VehicleShops.WarehouseRefresh = function(data)
@@ -72,27 +80,31 @@ VehicleShops.Update = function()
           end
 
           if not VehicleShops.SpawnedVehicles[v.vehicle.plate] then
-            RequestModel(v.vehicle.model)
-            while not HasModelLoaded(v.vehicle.model) do Wait(0); end
+            --RequestModel(v.vehicle.model)
+            --while not HasModelLoaded(v.vehicle.model) do Wait(0); end
+            local coords = {v.location.x,v.location.y,v.location.z,v.location.heading}
+            Wait(500)
+            FXCore.Functions.SpawnVehicle(v.vehicle.model,function(callback_vehicle)
+              FreezeEntityPosition(callback_vehicle,true)
+              SetEntityAsMissionEntity(callback_vehicle,true,true)
+              SetVehicleUndriveable(callback_vehicle,true)
+              SetVehicleDoorsLocked(callback_vehicle,2)
 
+              SetEntityProofs(veh,true,true,true,true,true,true,true,true)
+              SetVehicleTyresCanBurst(callback_vehicle,false)
+
+              SetModelAsNoLongerNeeded(v.vehicle.model)
+
+              FXCore.Functions.SetVehicleProperties(callback_vehicle,v.vehicle)
+              TriggerEvent('vehiclekeys:client:SetOwner', v.vehicle.plate)
+              TriggerEvent('vehiclekeys:client:ToggleEngine')
+              v.entity = callback_vehicle
+
+              VehicleShops.SpawnedVehicles[v.vehicle.plate] = veh
+            end,coords)
             local veh = CreateVehicle(v.vehicle.model, v.location.x,v.location.y,v.location.z,v.location.heading, false,false)
 
-            FreezeEntityPosition(veh,true)
-            SetEntityAsMissionEntity(veh,true,true)
-            SetVehicleUndriveable(veh,true)
-            SetVehicleDoorsLocked(veh,2)
 
-            SetEntityProofs(veh,true,true,true,true,true,true,true,true)
-            SetVehicleTyresCanBurst(veh,false)
-
-            SetModelAsNoLongerNeeded(v.vehicle.model)
-
-            FXCore.Functions.SetVehicleProperties(veh,v.vehicle)
-    TriggerEvent('vehiclekeys:client:SetOwner', v.vehicle.plate)
-    TriggerEvent('vehiclekeys:client:ToggleEngine')
-            v.entity = veh
-
-            VehicleShops.SpawnedVehicles[v.vehicle.plate] = veh
           else
             if not last_spawn_message then
               last_spawn_message = GetGameTimer()
@@ -108,13 +120,10 @@ VehicleShops.Update = function()
           local pos = VehicleShops.Shops[closest].displays[closestVeh].location
 
           local label = GetLabelText(GetDisplayNameFromVehicleModel(VehicleShops.Shops[closest].displays[closestVeh].vehicle.model))
-          if JERICO.UseCustomFile then
-            veshare = Customs.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].name
-             mods = Customs.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].brand
-          else
+
              veshare = FXCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].name
             mods = FXCore.Shared.VehicleModels[VehicleShops.Shops[closest].displays[closestVeh].vehicle.model].brand
-          end
+
          
           local price = (VehicleShops.Shops[closest].displays[closestVeh].price or false)
           local min,max = GetModelDimensions( VehicleShops.Shops[closest].displays[closestVeh].vehicle.model )
@@ -188,7 +197,7 @@ VehicleShops.PurchaseStockVehicle = function(vehicle_data,shop_key)
     local props = FXCore.Functions.GetVehicleProperties(vehicle_data.ent)
     FXCore.Functions.TriggerCallback("VehicleShops:GenerateNewPlate",function(newPlate)
       props.plate = newPlate
-
+   
       RequestModel(props.model)
       while not HasModelLoaded(props.model) do Wait(0); end
 
@@ -302,11 +311,9 @@ VehicleShops.ManageDisplays = function(shop_key)
   local elements = {}
   for _,vehicle_data in pairs(shop.stock) do
     if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
-      if JERICO.UseCustomFile then
-         veshare = Customs.VehicleModels[vehicle_data.vehicle.model].name
-      else
+
         veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
-      end
+
      
       
       table.insert(elements,{
@@ -349,13 +356,10 @@ VehicleShops.ManageDisplayed = function(shop_key)
   if TableCount(shop.displays) > 0 then
     for _,vehicle_data in pairs(shop.displays) do
       if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
-        if JERICO.UseCustomFile then
-          veshare = Customs.VehicleModels[vehicle_data.vehicle.model].name
-          mods = Customs.VehicleModels[vehicle_data.vehicle.model].brand
-        else
+
           veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
         mods = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
-        end
+
 
         table.insert(elements,{
           label = "["..vehicle_data.vehicle.plate.."] "..mods.." | "..veshare,
@@ -401,13 +405,10 @@ VehicleShops.DoSetPrice = function(shop,vehicle)
     else      
       
       local vehData = VehicleShops.Shops[shop].displays[vehicle]
-      if JERICO.UseCustomFile then
-         veshare = Customs.VehicleModels[vehData.vehicle.model].name
-         mods = Customs.VehicleModels[vehData.vehicle.model].brand
-      else
+
          veshare = FXCore.Shared.VehicleModels[vehData.vehicle.model].name
          mods = FXCore.Shared.VehicleModels[vehData.vehicle.model].brand
-      end
+
    
       FXCore.Functions.Notify("Tú fijas el precio del "..mods.." | "..veshare.." at $"..price)
       TriggerServerEvent("VehicleShops:SetPrice",vehicle,shop,price)
@@ -508,19 +509,17 @@ VehicleShops.DriveVehicle = function(shop_key)
  
   local elements = {}
   if #shop.stock > 0 then
-    for _,vehicle_data in pairs(shop.stock) do      
+    for _,vehicle_data in pairs(shop.stock) do
       if vehicle_data and vehicle_data.vehicle and vehicle_data.vehicle.plate then
-        if JERICO.UseCustomFile then
-          veshare = Customs.VehicleModels[vehicle_data.vehicle.model].name
-           mods = Customs.VehicleModels[vehicle_data.vehicle.model].brand
-        else
-           veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
-          mods = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
-        end
-        table.insert(elements,{
-          label = "["..vehicle_data.vehicle.plate.."] "..mods.." | "..veshare,
+
+
+        veshare = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].name
+        mods    = FXCore.Shared.VehicleModels[vehicle_data.vehicle.model].brand
+
+        table.insert(elements, {
+          label = "[" .. vehicle_data.vehicle.plate .. "] " .. mods .. " | " .. veshare,
           value = vehicle_data,
-          key   = _
+          key = _
         })
       end
     end
@@ -550,16 +549,21 @@ VehicleShops.DriveVehicle = function(shop_key)
         local pos = VehicleShops.Shops[shop_key].locations.purchased
 
         print(props,props.model)
-        RequestModel(props.model)
-        while not HasModelLoaded(props.model) do Wait(0); end
+        --RequestModel(props.model)
+        --while not HasModelLoaded(props.model) do Wait(0); end
+      local coordinate = {pos.x,pos.y,pos.z,pos.heading}
+FXCore.FUnctions.SpawnedVehicles(props.model,function(callback)
+  SetEntityAsMissionEntity(callback,true,true)
+  FXCore.Functions.SetVehicleProperties(callback,props)
+  TaskWarpPedIntoVehicle(GetPlayerPed(-1),callback,-1)
+  --SetVehicleEngineOn(veh,true)
+  TriggerEvent('vehiclekeys:client:SetOwner', props.plate )
+  TriggerEvent('vehiclekeys:client:ToggleEngine')
 
-        local veh = CreateVehicle(props.model,pos.x,pos.y,pos.z,pos.heading,true,true)
-        SetEntityAsMissionEntity(veh,true,true)
-        FXCore.Functions.SetVehicleProperties(veh,props)
-        TaskWarpPedIntoVehicle(GetPlayerPed(-1),veh,-1)
-        --SetVehicleEngineOn(veh,true)
-        TriggerEvent('vehiclekeys:client:SetOwner', props.plate )
-       TriggerEvent('vehiclekeys:client:ToggleEngine')
+
+end,coordinate)
+     --   local veh = CreateVehicle(props.model,pos.x,pos.y,pos.z,pos.heading,true,true)
+
       else
         print("Cb3")
         FXCore.Functions.Notify(msg)
@@ -616,6 +620,7 @@ VehicleShops.HireMenu = function(shop_key)
   if coordinates == "table" then
 
   for k,v in pairs(coordinates) do
+    print(v)
     if v ~= ply then
       table.insert(elements,{
         label = GetPlayerName(v),
@@ -782,33 +787,11 @@ VehicleShops.ManageEmployees = function(shop_key)
   end})
 
   end
-
-  --[[ FXCore.UI.Menu.Open('default', GetCurrentResourceName(), 'manage_employees', {
-    title    = "Employees",
-    align    = 'top-left',
-    elements = elements
-  },
-    function(d,m)
-      m.close()
-      local element = d.current
-      if element.value == "Fire" then
-        VehicleShops.FireMenu(shop_key)
-      elseif element.value == "Hire" then
-        VehicleShops.HireMenu(shop_key)
-      elseif element.value == "Pay" then
-        VehicleShops.PayMenu(shop_key)
-      end
-    end,
-    function(d,m)
-      m.close()
-      VehicleShops.ManagementMenu(shop_key)
-    end
-  ) ]]
 end
 
 VehicleShops.ManagementMenu = function(shop_key)
   local elements = {}
-print()
+
   local PlayerData = FXCore.Functions.GetPlayerData()
 
   if VehicleShops.Shops[shop_key].owner == PlayerData.steam then
@@ -1100,7 +1083,7 @@ VehicleShops.SpawnShop = function()
     local hash = GetHashKey(v.model)
     local started = GetGameTimer()
     RequestModel(hash)
-    while not HasModelLoaded(hash) and (GetGameTimer() - started) < 10000 do Wait(0); end
+    while not HasModelLoaded(hash) and (GetGameTimer() - started) < 10000 do Wait(2000); end
     if HasModelLoaded(hash) then
       local veh = CreateVehicle(hash, v.pos.x,v.pos.y,v.pos.z, v.pos.w, false,false)
 
@@ -1112,6 +1095,8 @@ VehicleShops.SpawnShop = function()
       SetVehicleUndriveable(veh,true)
       SetVehicleDoorsLocked(veh,2)
       SetVehicleEngineOn(veh,true)
+      TriggerEvent('vehiclekeys:client:SetOwner', v.plate )
+      TriggerEvent('vehiclekeys:client:ToggleEngine')
     end
     SetModelAsNoLongerNeeded(hash)
   end  
@@ -1141,14 +1126,24 @@ VehicleShops.PurchaseDisplay = function(shop_key,veh_key,veh_ent)
   local props = FXCore.Functions.GetVehicleProperties(veh_ent)
   FXCore.Functions.TriggerCallback("VehicleShops:TryBuy",function(canBuy,msg)
     if canBuy then
-      RequestModel(props.model)
-      while not HasModelLoaded(props.model) do Wait(0); end
+     -- RequestModel(props.model)
+     -- while not HasModelLoaded(props.model) do Wait(0); end
       local pos = VehicleShops.Shops[shop_key].locations.purchased
-      local veh = CreateVehicle(props.model,pos.x,pos.y,pos.z,pos.heading,true,true)
-      SetEntityAsMissionEntity(veh,true,true)
-      FXCore.Functions.SetVehicleProperties(veh,props)
-      TaskWarpPedIntoVehicle(GetPlayerPed(-1),veh,-1)
-      SetVehicleEngineOn(veh,true)
+      local coords = {pos.x,pos.y,pos.z,pos.heading}
+      FXCore.Functions.SpawnVehicle(props.model,function(callback_vehicle)
+        SetEntityAsMissionEntity(callback_vehicle,true,true)
+        FXCore.Functions.SetVehicleProperties(callback_vehicle,props)
+        TaskWarpPedIntoVehicle(GetPlayerPed(-1),callback_vehicle,-1)
+        TriggerEvent('vehiclekeys:client:SetOwner', props.plate )
+
+        SetVehicleEngineOn(callback_vehicle,true)
+
+
+
+      end,coords)
+
+     -- local veh = CreateVehicle(props.model,pos.x,pos.y,pos.z,pos.heading,true,true)
+
     else
       FXCore.Functions.Notify(msg)
     end
@@ -1159,17 +1154,18 @@ VehicleShops.DoDisplayVehicle = function(shopKey,vehKey,vehData)
   local shop = VehicleShops.Shops[shopKey]
   local props = vehData.vehicle
   local pos = shop.locations.spawn
-
+  --local pos = VehicleShops.Shops[shop_key].locations.purchased
+  local coords = {pos.x,pos.y,pos.z,pos.heading}
   Wait(500)
+  FXCore.Functions.SpawnVehicle(props.model,function(callback_vehicle)
+    SetEntityCollision(callback_vehicle,true,true)
+    while not DoesEntityExist(callback_vehicle) do Wait(0); end
+    FXCore.Functions.SetVehicleProperties(callback_vehicle,props)
+  end,coords)
+--  local displayVehicle = CreateVehicle(props.model, pos.x,pos.y,pos.z, pos.heading, false,false)
 
-  RequestModel(props.model)
-  while not HasModelLoaded(props.model) do Wait(0); end
 
-  local displayVehicle = CreateVehicle(props.model, pos.x,pos.y,pos.z, pos.heading, false,false)
-  SetEntityCollision(displayVehicle,true,true)
-  while not DoesEntityExist(displayVehicle) do Wait(0); end 
 
-  FXCore.Functions.SetVehicleProperties(displayVehicle,props)
   Wait(500)
 
   local scaleform = GetMoveScaleform()

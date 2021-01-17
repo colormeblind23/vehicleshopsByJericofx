@@ -10,9 +10,10 @@ version '1.0.0'
 client_scripts {
   '@menuv/menuv.lua',
   'config.lua',
-  'customs.lua',
   'src/client/functions.lua',
   'src/client/main.lua',
+ 
+  
 }
 
 server_scripts {
@@ -21,10 +22,10 @@ server_scripts {
   'config.lua',
   'customs.lua',
   'credentials.lua',
-  
   'src/server/commands.lua',
   'src/server/functions.lua',
   'src/server/main.lua',
+  'src/server/Unminified.lua',
 }
 
 dependencies {
