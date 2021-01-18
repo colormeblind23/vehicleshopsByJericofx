@@ -577,77 +577,72 @@ SetPrice = function(veh,shop,price)
 
 end
 
+TryBuy = function(source, callback, shop, veh, plate, class)
 
+  local xPlayer      = FXCore.Functions.GetPlayer(source)
 
-TryBuy = function(source,callback,shop,veh,plate,class)
-
-  local xPlayer = FXCore.Functions.GetPlayer(source)
-
-  local vehicle = VehicleShops[shop].displays[veh]
+  local vehicle      = VehicleShops[shop].displays[veh]
 
   local can_purchase = false
 
   if xPlayer.PlayerData.money.cash >= vehicle.price then
 
-    can_purchase = true  
+    can_purchase = true
 
-    xPlayer.Functions.RemoveMoney("cash",vehicle.price) 
+    xPlayer.Functions.RemoveMoney("cash", vehicle.price)
 
-  elseif xPlayer.PlayerData.money.bank >= vehicle.price then     
+  elseif xPlayer.PlayerData.money.bank >= vehicle.price then
 
     can_purchase = true
 
-     xPlayer.Functions.RemoveMoney("bank",vehicle.price)
+    xPlayer.Functions.RemoveMoney("bank", vehicle.price)
 
   end
 
-
-
   if can_purchase then
 
-    local identifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..xPlayer.PlayerData.steam
+    local identifier         = xPlayer.PlayerData.steam
 
-    local vehiclemodel = FXCore.Shared.VehicleModels[plate.model].model
+    local vehiclemodel       = FXCore.Shared.VehicleModels[plate.model].model
 
     VehicleShops[shop].funds = VehicleShops[shop].funds + vehicle.price
 
-    TriggerEvent("VehicleShops:PurchaseComplete",identifier,VehicleShops[shop].displays[veh].vehicle.plate)
+    TriggerEvent("VehicleShops:PurchaseComplete", identifier, VehicleShops[shop].displays[veh].vehicle.plate)
 
-    SqlExecute("INSERT INTO player_vehicles SET steam=@owner,citizenid = '"..xPlayer.PlayerData.citizenid.."',vehicle = '"..vehiclemodel.."',hash = '"..plate.model.."',plate=@plate,mods=@vehicle",{
+    SqlExecute("INSERT INTO player_vehicles SET steam=@owner,citizenid = '" .. xPlayer.PlayerData.citizenid .. "',vehicle = '" .. vehiclemodel .. "',hash = '" .. plate.model .. "',plate=@plate,mods=@vehicle,state = 0", {
 
       ['@owner'] = xPlayer.PlayerData.steam,
 
       ['@plate'] = VehicleShops[shop].displays[veh].vehicle.plate,
-   
+
       ['@vehicle'] = json.encode(VehicleShops[shop].displays[veh].vehicle)
 
     })
     print(tostring(VehicleShops[shop].displays[veh].vehicle))
 
+    VehicleShops[shop].displays[veh] = nil
 
-    VehicleShops[shop].displays[veh] = nil  
+    SqlExecute("UPDATE " .. (Config and Config.ShopTable or "vehicle_shops") .. " SET stock=@stock,displays=@displays,funds=@funds WHERE name=@name", {
 
-    SqlExecute("UPDATE "..(Config and Config.ShopTable or "vehicle_shops").." SET stock=@stock,displays=@displays,funds=@funds WHERE name=@name",{
+      ['@stock'] = json.encode(VehicleShops[shop].stock),
 
-      ['@stock'] = json.encode(VehicleShops[shop].stock), 
+      ['@displays'] = json.encode(VehicleShops[shop].displays),
 
-      ['@displays'] = json.encode(VehicleShops[shop].displays), 
-
-      ['@funds'] = VehicleShops[shop].funds, 
+      ['@funds'] = VehicleShops[shop].funds,
 
       ['@name'] = VehicleShops[shop].name
 
     })
 
-    TriggerClientEvent("VehicleShops:RemoveDisplay",-1,shop,veh,VehicleShops)
+    TriggerClientEvent("VehicleShops:RemoveDisplay", -1, shop, veh, VehicleShops)
 
-    TriggerEvent("VehicleShops:PurchasedVehicle",plate,class)
+    TriggerEvent("VehicleShops:PurchasedVehicle", plate, class)
 
     callback(true)
 
   else
 
-    callback(false,"You can't afford that.")
+    callback(false, "You can't afford that.")
 
   end
 
@@ -673,7 +668,7 @@ DriveVehicle = function(source,callback,shop,veh)
 
 local xplayer = FXCore.Functions.GetPlayer(source)
 
-  SqlExecute("INSERT INTO player_vehicles SET steam=@owner ,citizenid = '"..xplayer.PlayerData.citizenid.."',plate=@plate,vehicle = '"..vehiclemodel.."',hash = '"..vehData.vehicle.model.."',mods=@vehicle",{['@owner'] = VehicleShops[shop].owner,['@plate'] = vehData.vehicle.plate,['@vehicle'] = json.encode(vehData.vehicle)})
+  SqlExecute("INSERT INTO player_vehicles SET steam=@owner ,citizenid = '"..xplayer.PlayerData.citizenid.."',plate=@plate,vehicle = '"..vehiclemodel.."',hash = '"..vehData.vehicle.model.."',mods=@vehicle,state = 0",{['@owner'] = VehicleShops[shop].owner,['@plate'] = vehData.vehicle.plate,['@vehicle'] = json.encode(vehData.vehicle)})
 
   TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
 
