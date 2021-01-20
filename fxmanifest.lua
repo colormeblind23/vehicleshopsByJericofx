@@ -9,6 +9,7 @@ version '1.0.0'
 
 client_scripts {
   '@menuv/menuv.lua',
+  'customs.lua',
   'config.lua',
   'src/client/functions.lua',
   'src/client/main.lua',

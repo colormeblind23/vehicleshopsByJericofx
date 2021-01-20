@@ -2,11 +2,11 @@
 -- ModFreakz
 JERICO = {}
 JERICO.UseCustomFile = true
-TriggerEvent('FXCore:GetObject', function(obj) FXCore = obj end)
+TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
 
 Config = {
-  StockStolenPedVehicles    = false,
-  StockStolenPlayerVehicles = false, 
+  StockStolenPedVehicles    = true,
+  StockStolenPlayerVehicles = true, 
   RefreshTimer              = (5 * 60 * 1000), -- Warehouse refresh timer. Milliseconds.
 
   BankAccountName = "bank",

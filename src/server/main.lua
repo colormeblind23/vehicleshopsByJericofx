@@ -10,7 +10,10 @@
                                                                                                  
 
  ]]
+ QBCore = nil
 
+ TriggerEvent("QBCore:GetObject", function(obj) QBCore = obj end)
+ 
 error = function(...) end
 
 
@@ -91,9 +94,9 @@ KashChosen = function(charId)
 
 
 
-  local xPlayer = FXCore.Functions.GetPlayer(_source)
+  local xPlayer = QBCore.Functions.GetPlayer(_source)
 
-  while not xPlayer do xPlayer = FXCore.Functions.GetPlayer(_source); Wait(0); end
+  while not xPlayer do xPlayer = QBCore.Functions.GetPlayer(_source); Wait(0); end
 
   local identifier = (KashCharacters[_source] and KashCharacters[_source]..":" or '')..xPlayer.PlayerData.steam
 
@@ -222,7 +225,7 @@ Init = function()
 
 
                   
-                  vehData = FXCore.Shared.VehicleModels
+                  vehData = QBCore.Shared.VehicleModels
 
                     for k,v in pairs(vehData) do
 
@@ -388,7 +391,7 @@ PurchaseShop = function(source,callback,shop)
 
   local _source = source
 
-  local xPlayer = FXCore.Functions.GetPlayer(_source)
+  local xPlayer = QBCore.Functions.GetPlayer(_source)
 
   local can_buy = false
 
@@ -473,8 +476,8 @@ end
 
 
 VehiclePurchased = function(shopId,vehId,props)
-local xplauyerc = FXCore.Functions.GetPlayer(VehicleShops[shopId].owner)
-local vehiclemodel = FXCore.Shared.VehicleModels[props.model].model
+local xplauyerc = QBCore.Functions.GetPlayer(VehicleShops[shopId].owner)
+local vehiclemodel = QBCore.Shared.VehicleModels[props.model].model
   VehicleShops[shopId].funds = VehicleShops[shopId].funds - ShopVehicles[vehId].price
 
   TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
@@ -579,7 +582,7 @@ end
 
 TryBuy = function(source, callback, shop, veh, plate, class)
 
-  local xPlayer      = FXCore.Functions.GetPlayer(source)
+  local xPlayer      = QBCore.Functions.GetPlayer(source)
 
   local vehicle      = VehicleShops[shop].displays[veh]
 
@@ -603,13 +606,13 @@ TryBuy = function(source, callback, shop, veh, plate, class)
 
     local identifier         = xPlayer.PlayerData.steam
 
-    local vehiclemodel       = FXCore.Shared.VehicleModels[plate.model].model
+    local vehiclemodel       = QBCore.Shared.VehicleModels[plate.model].model
 
     VehicleShops[shop].funds = VehicleShops[shop].funds + vehicle.price
 
     TriggerEvent("VehicleShops:PurchaseComplete", identifier, VehicleShops[shop].displays[veh].vehicle.plate)
 
-    SqlExecute("INSERT INTO player_vehicles SET steam=@owner,citizenid = '" .. xPlayer.PlayerData.citizenid .. "',vehicle = '" .. vehiclemodel .. "',hash = '" .. plate.model .. "',plate=@plate,mods=@vehicle,state = 0", {
+    SqlExecute("INSERT INTO player_vehicles SET steam=@owner,citizenid = '" .. xPlayer.PlayerData.citizenid .. "',vehicle = '" .. vehiclemodel .. "',hash = '" .. plate.model .. "',plate=@plate,mods=@vehicle,state = 1", {
 
       ['@owner'] = xPlayer.PlayerData.steam,
 
@@ -653,7 +656,7 @@ end
 DriveVehicle = function(source,callback,shop,veh)
 
   local vehData = CopyTable(VehicleShops[shop].stock[veh])
-  local vehiclemodel = FXCore.Shared.VehicleModels[vehData.vehicle.model].model
+  local vehiclemodel = QBCore.Shared.VehicleModels[vehData.vehicle.model].model
   for k,v in pairs(VehicleShops[shop].stock) do
 
     if v.vehicle.plate == vehData.vehicle.plate then
@@ -666,9 +669,9 @@ DriveVehicle = function(source,callback,shop,veh)
 
   end
 
-local xplayer = FXCore.Functions.GetPlayer(source)
+local xplayer = QBCore.Functions.GetPlayer(source)
 
-  SqlExecute("INSERT INTO player_vehicles SET steam=@owner ,citizenid = '"..xplayer.PlayerData.citizenid.."',plate=@plate,vehicle = '"..vehiclemodel.."',hash = '"..vehData.vehicle.model.."',mods=@vehicle,state = 0",{['@owner'] = VehicleShops[shop].owner,['@plate'] = vehData.vehicle.plate,['@vehicle'] = json.encode(vehData.vehicle)})
+  SqlExecute("INSERT INTO player_vehicles SET steam=@owner ,citizenid = '"..xplayer.PlayerData.citizenid.."',plate=@plate,vehicle = '"..vehiclemodel.."',hash = '"..vehData.vehicle.model.."',mods=@vehicle,state = 1",{['@owner'] = VehicleShops[shop].owner,['@plate'] = vehData.vehicle.plate,['@vehicle'] = json.encode(vehData.vehicle)})
 
   TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
 
@@ -778,7 +781,7 @@ AddFunds = function(shop_key,amount)
 
   local _source = source
 
-  local xPlayer = FXCore.Functions.GetPlayer(_source)
+  local xPlayer = QBCore.Functions.GetPlayer(_source)
 
   local can_purchase = false
 
@@ -806,11 +809,11 @@ AddFunds = function(shop_key,amount)
 
     TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
 
-    TriggerClientEvent("FXCore:Notify",_source,"You added $~g~"..amount.."~s~ to the shops funds.")
+    TriggerClientEvent("QBCore:Notify",_source,"You added $~g~"..amount.."~s~ to the shops funds.")
 
   else
 
-    TriggerClientEvent("FXCore:Notify",_source,"You can't afford that.")
+    TriggerClientEvent("QBCore:Notify",_source,"You can't afford that.")
 
   end
 
@@ -824,7 +827,7 @@ TakeFunds = function(shop_key,amount)
 
   if VehicleShops[shop_key].funds >= amount then
 
-    local xPlayer = FXCore.Functions.GetPlayer(_source)
+    local xPlayer = QBCore.Functions.GetPlayer(_source)
 
     local identifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..xPlayer.getIdentifier()
 
@@ -846,13 +849,13 @@ TakeFunds = function(shop_key,amount)
 
       TriggerClientEvent("VehicleShops:Sync",-1,VehicleShops)
 
-      TriggerClientEvent("FXCore:Notify",_source,"You took $~r~"..amount.."~s~ from the shops funds.")
+      TriggerClientEvent("QBCore:Notify",_source,"You took $~r~"..amount.."~s~ from the shops funds.")
 
     end
 
   else
 
-    TriggerClientEvent("FXCore:Notify",_source,"The shop doesn't have that many funds.")
+    TriggerClientEvent("QBCore:Notify",_source,"The shop doesn't have that many funds.")
 
   end
 
@@ -862,7 +865,7 @@ end
 
 HirePlayer = function(shop_key,target_id)
 
-  local mPlayer = FXCore.Functions.GetPlayer(source)
+  local mPlayer = QBCore.Functions.GetPlayer(source)
 
   local mIdentifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..mPlayer.getIdentifier()
 
@@ -870,7 +873,7 @@ HirePlayer = function(shop_key,target_id)
 
   if shop and shop.owner and shop.owner == mIdentifier then
 
-    local xPlayer = FXCore.Functions.GetPlayer(target_id)
+    local xPlayer = QBCore.Functions.GetPlayer(target_id)
 
     SqlFetch('SELECT firstname, lastname FROM `users` WHERE `identifier` = @identifier', {['@identifier'] = xPlayer.getIdentifier()}, function(result)  
 
@@ -898,7 +901,7 @@ end
 
 FirePlayer = function(shop_key,target_id)
 
-  local mPlayer = FXCore.Functions.GetPlayer(source)
+  local mPlayer = QBCore.Functions.GetPlayer(source)
 
   local mIdentifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..mPlayer.getIdentifier()
 
@@ -930,7 +933,7 @@ end
 
 PayPlayer = function(shop_key,target_id,amount)
 
-  local mPlayer = FXCore.Functions.GetPlayer(source)
+  local mPlayer = QBCore.Functions.GetPlayer(source)
 
   local mIdentifier = (KashCharacters[source] and KashCharacters[source]..":" or '')..mPlayer.getIdentifier()
 
@@ -948,11 +951,11 @@ PayPlayer = function(shop_key,target_id,amount)
 
         if KashPlayers[target_id] then
 
-          xPlayer = FXCore.Functions.GetPlayer(KashPlayers[target_id].src)
+          xPlayer = QBCore.Functions.GetPlayer(KashPlayers[target_id].src)
 
         else
 
-          xPlayer = FXCore.Functions.GetPlayerentifier(target_id)
+          xPlayer = QBCore.Functions.GetPlayerentifier(target_id)
 
         end
 
@@ -972,7 +975,7 @@ PayPlayer = function(shop_key,target_id,amount)
 
           shop.funds = shop.funds - amount
 
-          TriggerClientEvent("FXCore:Notify",source,string.format("Payed %s %s $%i.",v.identity.firstname,v.identity.lastname,amount))
+          TriggerClientEvent("QBCore:Notify",source,string.format("Payed %s %s $%i.",v.identity.firstname,v.identity.lastname,amount))
 
           SqlExecute("UPDATE "..(Config and Config.ShopTable or "vehicle_shops").." SET funds=funds - @amount WHERE name=@name",{['@amount'] = amount, ['@name'] = VehicleShops[shop_key].name})
 
@@ -980,7 +983,7 @@ PayPlayer = function(shop_key,target_id,amount)
 
         else
 
-          TriggerClientEvent("FXCore:Notify",source,"Player is not online.")
+          TriggerClientEvent("QBCore:Notify",source,"Player is not online.")
 
         end
 
@@ -996,17 +999,17 @@ end
 
 
 
-FXCore.Functions.CreateCallback("VehicleShops:GetVehicleShops", GetVehicleShops)
+QBCore.Functions.CreateCallback("VehicleShops:GetVehicleShops", GetVehicleShops)
 
-FXCore.Functions.CreateCallback("VehicleShops:GetVehicleOwner", GetVehicleOwner)
+QBCore.Functions.CreateCallback("VehicleShops:GetVehicleOwner", GetVehicleOwner)
 
-FXCore.Functions.CreateCallback("VehicleShops:GenerateNewPlate", GenerateNewPlate)
+QBCore.Functions.CreateCallback("VehicleShops:GenerateNewPlate", GenerateNewPlate)
 
-FXCore.Functions.CreateCallback("VehicleShops:TryBuy", TryBuy)
+QBCore.Functions.CreateCallback("VehicleShops:TryBuy", TryBuy)
 
-FXCore.Functions.CreateCallback("VehicleShops:PurchaseShop", PurchaseShop)
+QBCore.Functions.CreateCallback("VehicleShops:PurchaseShop", PurchaseShop)
 
-FXCore.Functions.CreateCallback("VehicleShops:DriveVehicle", DriveVehicle)
+QBCore.Functions.CreateCallback("VehicleShops:DriveVehicle", DriveVehicle)
 
 
 
