@@ -211,17 +211,17 @@ VehicleShops.PurchaseStockVehicle = function(vehicle_data,shop_key)
 
       FXCore.Functions.SetVehicleProperties(newVeh,props)
 
-      SetVehicleEngineOn(newVeh,true,true,true)
       TaskWarpPedIntoVehicle(plyPed,newVeh,-1)
+      Wait(500)
 
       local targetPos = Warehouse.purchasedSpawns[math.random(#Warehouse.purchasedSpawns)]
       SetEntityCoordsNoOffset(newVeh,targetPos.x,targetPos.y,targetPos.z)
       SetEntityHeading(newVeh,targetPos.w)
       SetVehicleOnGroundProperly(newVeh)
       SetEntityAsMissionEntity(newVeh,true,true)
+      DoScreenFadeIn(500)
       TriggerEvent('vehiclekeys:client:SetOwner', props.plate )
       TriggerEvent('vehiclekeys:client:ToggleEngine')
-      DoScreenFadeIn(500)
 
       InsideWarehouse = false
       VehicleShops.DespawnShop()
@@ -1095,8 +1095,6 @@ VehicleShops.SpawnShop = function()
       SetVehicleUndriveable(veh,true)
       SetVehicleDoorsLocked(veh,2)
       SetVehicleEngineOn(veh,true)
-      TriggerEvent('vehiclekeys:client:SetOwner', v.plate )
-      TriggerEvent('vehiclekeys:client:ToggleEngine')
     end
     SetModelAsNoLongerNeeded(hash)
   end  
